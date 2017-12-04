@@ -56,15 +56,15 @@ def show(xList, yList, w):
 	import matplotlib.pyplot as plt
 	xArr = np.array(xList)
 	yArr = np.transpose([yList])
-	yPredict = np.dot(xArr, w)
 	fig = plt.figure() #创建一幅图
 	ax = fig.add_subplot(1, 1, 1)
-	print ax
-	ax.scatter(xArr[ : , 1].flatten().A[0], yArr[ : , 0].flatten().A[0])
+	ax.scatter(xArr[:, 1:2].flatten(), yArr.flatten())
+	plt.show()
 	xCopy = xArr.copy()
 	xCopy.sort(0)
-	yHat = xCopy * ws
-	ax.plot(xCopy[ : , 1], yHat)
+	yPredict = np.dot(xCopy, w)
+	#print xCopy[:, 1:2].flatten()
+	ax.plot(xCopy[:, 1:2].flatten().tolist(), yPredict.flatten().tolist())
 	plt.show()
 
 #主函数
