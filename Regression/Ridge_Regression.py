@@ -15,10 +15,8 @@ def loadDataSet(filename):
 			x = i.rstrip().split("\t")
 			#x = i.split("\t")
 			x = map(eval, x)
-			#print x
 			xArr.append(x[:-1])
 			yArr.append(float(x[-1]))
-	#print xArr
 	return xArr ,yArr
 
 '''

@@ -75,7 +75,7 @@ def main():
 	print "最小二乘法得出的回归系数： \n", ws
 	show(xList, yList, ws)
 	yPredict = np.dot(xList, ws)
-	print "相关性： ", corrcoef(yPredict.T.tolist(), yList) #corrcoef中的两个参数尽可能的类型相似,yList是list,因此yPredict是numpy.ndarray且为二维的列向量。
+	print "相关性：", corrcoef(yPredict.T.tolist(), yList) #corrcoef中的两个参数尽可能的类型相似,yList是list,因此yPredict是numpy.ndarray且为二维的列向量。
 
 if __name__ == '__main__':
 	main()
