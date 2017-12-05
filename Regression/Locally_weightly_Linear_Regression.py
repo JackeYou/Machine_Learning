@@ -58,7 +58,6 @@ def lwLR(testPointList, xList, yList, k = 1.0):
 	theta = arrDot(np.linalg.inv(xTx),
 				   arrDot(xArr.T,
 						  arrDot(weights, yArr)))
-	#print arrDot(testPointArr, theta)[0]
 	return arrDot(testPointArr, theta)[0]
 
 def lwlrText(textArr, xArr, yArr, k = 1.0):
