@@ -47,14 +47,13 @@ def forwardStepwiseRegression(xArr, yArr, eps=0.01, numIt=100):
 	m, n = np.shape(xArr)
 	w = np.zeros([n, 1])
 	wTotal = np.zeros([numIt, n])
-	wTest = np.copy(w)
 	wMax = np.copy(w)
 	RSS = lambda x, y, w: (np.dot((y - np.dot(x, w)).T, (y - np.dot(x, w))))
 	for i in xrange(numIt):
 		lowestError = np.inf
 		for j in xrange(n):
 			for sign in [-1, 1]:
-				wTest = np.copy(w)
+				wTest = np.copy(w) #为了保持能把一个实例里使误差最低(与y真实值最近)的特征找出来
 				wTest[j] += eps * sign
 				rssError = RSS(xArr, yArr, wTest)
 				if rssError < lowestError:
