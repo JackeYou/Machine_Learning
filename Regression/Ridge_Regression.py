@@ -1,6 +1,10 @@
 #!/home/liud/anaconda3/envs/python/bin/python
 # -*- coding: utf-8 -*-
 
+'''
+	岭回归：
+
+'''
 import matplotlib.pyplot as plt
 import numpy as np
 from math import exp
@@ -8,16 +12,16 @@ from numpy import linalg
 
 #加载数据
 def loadDataSet(filename):
-	xArr = []
-	yArr = []
+	xList = []
+	yList = []
 	with open(filename) as f:
 		for i in f:
 			x = i.rstrip().split("\t")
 			#x = i.split("\t")
 			x = map(eval, x)
-			xArr.append(x[:-1])
-			yArr.append(float(x[-1]))
-	return xArr ,yArr
+			xList.append(x[:-1])
+			yList.append(float(x[-1]))
+	return xList ,yList
 
 '''
 	#第二种loadDataSet方法
@@ -34,44 +38,41 @@ def loadDataSet(filename):
 	return xArr, yArr
 '''
 
+#数据标准化与中心化
+def regularize(xArr, yArr):
+	#数据标准化
+	xMean = np.mean(xArr, 0)
+	xVar = np.var(xArr, 0)
+	xArrRL = (xArr - xMean) / xVar
+	#数据中心化
+	yMean = np.mean(yArr)
+	yArrCen = yArr - yMean
+	return xArrRL, yArrCen
+
 #岭回归公式：w = (xTx + λI).I * xTy
-def ridgeRegression(xMat, yMat, ld = 0.2):
-	xTx = xMat.T * xMat
-	#print np.shape(xTx)
-	#print np.shape(xMat)
-	penalty_term = np.mat(np.multiply(np.eye(np.shape(xTx)[1]), ld))
-	if linalg.det(penalty_term) == 0.0:
+def ridgeRegression(xArr, yArr, ld=0.2):
+	xTx = np.dot(xArr.T, xArr)
+	#print ld
+	penalty_term = xTx + np.eye(np.shape(xTx)[1]) * ld # 这里面的*运算符对应的是np.multiply()方法，是实现对应元素相乘.
+	#print penalty_term
+	if np.linalg.det(penalty_term) == 0.0:
 		print "This matrix is singular, cannot do inverse"
 		return
-	w = (xTx + penalty_term).I *(xMat.T *yMat)
+	w = np.dot(np.linalg.inv(penalty_term), np.dot(xArr.T, yArr))
 	return w
 
-#数据标准化与中心化
-def regularize(xMat, yMat):
-	#数据标准化
-	xMean = np.mean(xMat, 0)
-	xVar = np.var(xMat, 0)
-	xMat = (xMat - xMean) / xVar
-	#数据中心化
-	yMean = np.mean(yMat)
-	yMat = yMat - yMean
-	return xMat, yMat
-
 #测试不同ld的岭回归
-def ridgeTest(xArr, yArr):
-	xMat = np.mat(xArr)
-	yMat = np.mat(yArr).A
-	print xMat
+def ridgeTest(xList, yList, numTestPts = 30):
+	xArr = np.array(xList)
+	yArr = np.transpose([yList]) #加个[]是为了转换成二维
 	#数据标准化与中心化
-	xMat, yMat = regularize(xMat, yMat)
-	#print yMat
-	numTestPts = 30
-	wMat = np.zeros((numTestPts, np.shape(xMat)[1]))
-	#print wMat
+	xArr, yArr = regularize(xArr, yArr)
+	wArr = np.zeros((numTestPts, np.shape(xArr)[1]))
 	for i in xrange(numTestPts):
-		ws = ridgeRegression(xMat, yMat, exp(i - 10))
-		wMat[i, :] = ws.T
-	return wMat
+		ws = ridgeRegression(xArr, yArr, exp(i - 10))
+		wArr[i, :] = ws.T
+		print wArr[i]
+	return wArr
 
 #展示结果
 def showRidge():
@@ -81,10 +82,11 @@ def showRidge():
 	plt.show()
 
 def main():
-	xArr, yArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
-	ridgeWeights = ridgeTest(xArr, yArr)
+	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
+	ridgeWeights = ridgeTest(xList, yList)
 	print ridgeWeights
 	showRidge()
 
 if __name__ == '__main__':
 	main()
+	print 'Success'
