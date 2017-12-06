@@ -59,7 +59,6 @@ def show(xList, yList, w):
 	fig = plt.figure() #创建一幅图
 	ax = fig.add_subplot(1, 1, 1)
 	ax.scatter(xArr[:, 1:2].flatten(), yArr.flatten())
-	plt.show()
 	xCopy = xArr.copy()
 	xCopy.sort(0)
 	yPredict = np.dot(xCopy, w)
