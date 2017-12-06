@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import exp
 from numpy import linalg
+from sklearn import linear_model
 
 #加载数据
 def loadDataSet(filename):
@@ -56,7 +57,7 @@ def regularize(xArr, yArr):
 	return xArrRL, yArrCen
 
 #岭回归公式：w = (xTx + λI).I * xTy
-def ridgeRegression(xArr, yArr, ld=0.2):
+def ridgeRegression(xArr, yArr, ld = 0.2):
 	xTx = np.dot(xArr.T, xArr)
 	penalty_term = xTx + np.eye(np.shape(xTx)[1]) * ld # 这里面的*运算符对应的是np.multiply()方法，是实现对应元素相乘.
 	#print penalty_term
@@ -64,7 +65,13 @@ def ridgeRegression(xArr, yArr, ld=0.2):
 		print "This matrix is singular, cannot do inverse"
 		return
 	w = np.dot(np.linalg.inv(penalty_term), np.dot(xArr.T, yArr))
-	return w
+	return w.T #为了方便加到迭代数组里面,才取的转置.
+
+#调sklearn的岭回归包
+def skLearn_ridgeRegression(xList, yList, ld = 0.2):
+	reg = linear_model.Ridge(alpha = ld, fit_intercept = False) # intercept要取0,因此数据中没有给出w0所对应的x0，x0 = 1
+	reg.fit(xList, yList)
+	return reg.coef_
 
 #测试不同ld的岭回归
 def ridgeTest(xList, yList, numTestPts = 30):
@@ -73,10 +80,14 @@ def ridgeTest(xList, yList, numTestPts = 30):
 	#数据标准化与中心化
 	xArr, yArr = regularize(xArr, yArr)
 	wArr = np.zeros((numTestPts, np.shape(xArr)[1]))
+
+	#自己理解写的岭回归
 	for i in xrange(numTestPts):
+		#自己实现的岭回归
 		ws = ridgeRegression(xArr, yArr, exp(i - 10))
-		wArr[i, :] = ws.T
-		#print wArr[i]
+		#根据sklearn调包实现的岭回归，如若运行这个，请把下面的ws改为ws1
+		ws1 = skLearn_ridgeRegression(xArr, yArr, exp(i - 10))
+		wArr[i, :] = ws
 	return wArr
 
 #展示结果
