@@ -1,5 +1,9 @@
 #!/home/liud/anaconda3/envs/python/bin/python
 # -*- coding: utf-8 -*-
+'''
+	线性回归
+	公式：W = 1/(xTx) * xT * y
+'''
 
 import numpy as np
 from numpy import linalg
@@ -48,7 +52,7 @@ def standRegress(xList, yList):
 def sklearn_standRegress(xList, yList):
 	clf = linear_model.LinearRegression(fit_intercept = False) #加载线性回归模型,且让w0 = 0(w0指的是intercept)
 	clf.fit(xList, yList) #拟合
-	print clf.intercept_
+	#print clf.intercept_
 	return np.transpose([clf.coef_]) #返回系数的列向量形式
 
 #展示结果
@@ -62,8 +66,8 @@ def show(xList, yList, w):
 	xCopy = xArr.copy()
 	xCopy.sort(0)
 	yPredict = np.dot(xCopy, w)
-	#print xCopy[:, 1:2].flatten()
-	ax.plot(xCopy[:, 1:2].flatten().tolist(), yPredict.flatten().tolist())
+	#print yPredict.flatten()
+	ax.plot(xCopy[:, 1], yPredict.flatten())
 	plt.show()
 
 #主函数
