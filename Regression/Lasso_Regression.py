@@ -1,5 +1,6 @@
 #!/home/liud/anaconda3/envs/python/bin/python
 # -*- coding: utf-8 -*-
+
 '''
 	2017.11.30 by youjiaqi
 	coordinate descent坐标轴下降法：
@@ -15,9 +16,10 @@
 	Least_Angle_Regression最小角回归法
 
 '''
+#加载的包
 import itertools
 import numpy as np
-
+from sklearn import linear_model
 #加载数据
 def loadDataSet(filename):
 	xList = []
@@ -78,7 +80,15 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 		print 'Iteration: {}, delta = {}'.format(it, delta)
 		if delta < threshold: #迭代多次满足RSS变化不超过threshold时,迭代停止
 			break
+	#print w
 	return w
+
+#调sklearn包的coordinate descent坐标轴下降法
+def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
+	reg = linear_model.Lasso(alpha = 0.2, fit_intercept = False, max_iter = 10)
+	reg.fit(xList, yList)
+	print reg.coef_
+	return reg.coef_
 
 #Least_Angle_Regression最小角回归法
 def lassoLeastAngleRegression(xArr, yArr):
@@ -87,13 +97,13 @@ def lassoLeastAngleRegression(xArr, yArr):
 	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y - np.dot(x, w)))
 	rss = Rss(xArr, yArr, w)
 
-
 #主函数
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
 	yArr = np.transpose([yArr])
-	ws = lassoCoordinateDescent(xArr, yArr, lm = 10) #L1正则
+	#ws = lassoCoordinateDescent(xArr, yArr, 10) #L1正则
+	ws = skLearn_coordinateDescent(xArr, yArr, lm = 10)
 	print ws
 	yArr_prime = np.dot(xArr, ws)
 	corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
