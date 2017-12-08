@@ -55,6 +55,7 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 	m, n = np.shape(xArr)
 	#print m, n
 	w = np.zeros((n, 1)) #初始化回归系数
+	print yArr[1]
 	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y- np.dot(x, w)))
 	rss = Rss(xArr, yArr, w)
 	#print rss
@@ -62,7 +63,7 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 	for it in niter: #迭代次数
 		for k in xrange(n): #k：特征个数
 			z_k = np.dot(xArr[:, k: k + 1].T, xArr[:, k: k + 1])[0][0]
-			p_k = sum([xArr[i, k] * (yArr[i] - sum([xArr[i, j] * w[j, 0]
+			p_k = sum([xArr[i, k] * (yArr[i, 0] - sum([xArr[i, j] * w[j, 0]
 													for j in xrange(n) if j != k])) for i in xrange(m)])
 			#print p_k
 			if p_k < -lm / 2:
@@ -72,7 +73,7 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 			else:
 				w_k = 0
 			w[k] = w_k
-		print w
+		#print w
 		rss_prime = Rss(xArr, yArr, w)
 		delta = abs(rss_prime - rss)[0][0]
 		#print delta
@@ -85,7 +86,7 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 
 #调sklearn包的coordinate descent坐标轴下降法
 def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
-	reg = linear_model.Lasso(alpha = 0.2, fit_intercept = False, max_iter = 10)
+	reg = linear_model.Lasso(alpha = 0.2, fit_intercept = False, tol = threshold)
 	reg.fit(xList, yList)
 	print reg.coef_
 	return reg.coef_
@@ -102,8 +103,8 @@ def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
 	yArr = np.transpose([yArr])
-	#ws = lassoCoordinateDescent(xArr, yArr, 10) #L1正则
-	ws = skLearn_coordinateDescent(xArr, yArr, lm = 10)
+	ws = lassoCoordinateDescent(xArr, yArr) #L1正则
+	#ws = skLearn_coordinateDescent(xArr, yArr, lm = 10)
 	print ws
 	yArr_prime = np.dot(xArr, ws)
 	corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
