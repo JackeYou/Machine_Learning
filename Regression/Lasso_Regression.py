@@ -5,20 +5,21 @@
 	2017.11.30 by youjiaqi
 	coordinate descent坐标轴下降法：
 	整个公式是RSS加上正则项的式子对wk进行求导,在k个特征下进行循环求解wk向量.
-	F = ∑(Yi -∑x * wij)^2 + λ * ∑|wj|
-	f = のF/のwk = 2∑(Yi -∑xij * wj) * (-xik) + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
-	f = のF/のwk = 2∑(Yi -∑(j!=k)xij * wj)* (-xik) + 2∑xik^2*wk + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
+	F = (1/2*m)∑(Yi -∑x * wij)^2 + λ * ∑|wj|
+	f = のF/のwk = 1/m * ∑(Yi -∑xij * wj) * (-xik) + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
+	f = のF/のwk = 1/m * ∑(Yi -∑(j!=k)xij * wj)* (-xik) + 1//m * ∑xik^2*wk + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
 	另p_k为∑(Yi -∑(j!=k)xij * wj)* (-xik),而z_k为∑xik^2.
-	のF/のwk为2z_k * wk - 2p_k + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)。另式子等于0
-	最终得出:		 |(p_k + λ/2) / z_k, p_k < - λ/2
-			wk = |      0          , - λ/2 < p_k < λ/2
-				 |(p_k - λ/2) / z_k, p_k > λ/2
+	のF/のwk为1/m * z_k * wk - 1/m * p_k + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)。另式子等于0
+	最终得出:		 |(p_k + λ*m) / z_k, p_k < - λm
+			wk = |      0          , - λm < p_k < λm
+				 |(p_k - λ*m) / z_k, p_k > λm
 	Least_Angle_Regression最小角回归法
 
 '''
 #加载的包
 import itertools
 import numpy as np
+from math import exp
 from sklearn import linear_model
 #加载数据
 def loadDataSet(filename):
@@ -51,11 +52,10 @@ def corCoef(xVector, yVector):
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
 #coordinate descent坐标轴下降法
-def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
+def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.01):
 	m, n = np.shape(xArr)
 	#print m, n
 	w = np.zeros((n, 1)) #初始化回归系数
-	print yArr[1]
 	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y- np.dot(x, w)))
 	rss = Rss(xArr, yArr, w)
 	#print rss
@@ -63,32 +63,29 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 	for it in niter: #迭代次数
 		for k in xrange(n): #k：特征个数
 			z_k = np.dot(xArr[:, k: k + 1].T, xArr[:, k: k + 1])[0][0]
-			p_k = sum([xArr[i, k] * (yArr[i, 0] - sum([xArr[i, j] * w[j, 0]
-													for j in xrange(n) if j != k])) for i in xrange(m)])
+			p_k = sum([xArr[i, k] * (yArr[i, 0] - sum([xArr[i, j] * w[j, 0] for j in xrange(n) if j != k])) for i in xrange(m)])
 			#print p_k
-			if p_k < -lm / 2:
-				w_k = (p_k + lm / 2) / z_k
-			elif p_k > lm / 2:
-				w_k = (p_k - lm / 2) / z_k
+			if p_k < -lm * m:
+				w_k = (p_k + lm * m) / z_k
+			elif p_k > lm * m:
+				w_k = (p_k - lm * m) / z_k
 			else:
-				w_k = 0
+				w_k = 0.0
 			w[k] = w_k
-		#print w
 		rss_prime = Rss(xArr, yArr, w)
 		delta = abs(rss_prime - rss)[0][0]
-		#print delta
 		rss = rss_prime
-		print 'Iteration: {}, delta = {}'.format(it, delta)
+		print 'delta = {}'.format(delta)
+		print w
 		if delta < threshold: #迭代多次满足RSS变化不超过threshold时,迭代停止
 			break
 	#print w
 	return w
 
 #调sklearn包的coordinate descent坐标轴下降法
-def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
-	reg = linear_model.Lasso(alpha = 0.2, fit_intercept = False, tol = threshold)
+def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.01):
+	reg = linear_model.Lasso(alpha = 0.2, fit_intercept = False, tol=threshold)
 	reg.fit(xList, yList)
-	print reg.coef_
 	return reg.coef_
 
 #Least_Angle_Regression最小角回归法
@@ -98,17 +95,33 @@ def lassoLeastAngleRegression(xArr, yArr):
 	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y - np.dot(x, w)))
 	rss = Rss(xArr, yArr, w)
 
+
+def lassoText(xArr, yArr, nTest = 30):
+	_, n = np.shape(xArr)
+	ws = np.zeros((nTest, n))
+	ws1 = np.zeros((nTest, n))
+	for i in xrange(nTest):
+		#自己按照公式实现的
+		w = lassoCoordinateDescent(xArr, yArr, lm = exp(i - 10))
+		#根据sklearn包进行实现的
+		w1 = skLearn_coordinateDescent(xArr, yArr, lm=exp(i - 10))
+		ws[i, :] = w.T
+		ws1[i, :] = w1
+		print('lambda = e^({}), w = {}'.format(i - 10, w.T))
+		#print('lambda = e^({}), w = {}'.format(i - 10, w1))
+	return ws
+
 #主函数
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
 	yArr = np.transpose([yArr])
-	ws = lassoCoordinateDescent(xArr, yArr) #L1正则
-	#ws = skLearn_coordinateDescent(xArr, yArr, lm = 10)
+	ws = lassoText(xArr, yArr)
+	#ws = lassoCoordinateDescent(xArr, yArr, 0.2)
 	print ws
-	yArr_prime = np.dot(xArr, ws)
-	corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
-	print'Correlation coefficient:{}'.format(corcoef)
+	#yArr_prime = np.dot(xArr, ws)
+	#corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
+	#print'Correlation coefficient:{}'.format(corcoef)
 
 if __name__ == '__main__':
 	main()
