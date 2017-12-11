@@ -11,6 +11,7 @@
 	当正则化因子选择为模型参数的二范数的时候,整个回归的方法就叫做岭回归.
 	公式：w = 1/(xTx + λI) * xTy
 '''
+#加载的包
 import matplotlib.pyplot as plt
 import numpy as np
 from math import exp
