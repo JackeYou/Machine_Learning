@@ -94,7 +94,7 @@ def main():
 		selectStyle = raw_input()
 		if selectStyle == '1':
 			for i in xrange(numTestPts):
-				# 根据sklearn调包实现的岭回归，如若运行这个，请把下面的ws改为ws1
+				# 根据sklearn调包实现的岭回归
 				ws = skLearn_ridgeRegression(xArr, yArr, exp(i - 10))
 				wArr[i, :] = ws
 			break
