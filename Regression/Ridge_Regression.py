@@ -74,23 +74,6 @@ def skLearn_ridgeRegression(xList, yList, ld = 0.2):
 	reg.fit(xList, yList)
 	return reg.coef_
 
-#测试不同ld的岭回归
-def ridgeTest(xList, yList, numTestPts = 30):
-	xArr = np.array(xList)
-	yArr = np.transpose([yList]) #加个[]是为了转换成二维
-	#数据标准化与中心化
-	xArr, yArr = regularize(xArr, yArr)
-	wArr = np.zeros((numTestPts, np.shape(xArr)[1]))
-
-	#自己理解写的岭回归
-	for i in xrange(numTestPts):
-		#自己实现的岭回归
-		ws = ridgeRegression(xArr, yArr, exp(i - 10))
-		#根据sklearn调包实现的岭回归，如若运行这个，请把下面的ws改为ws1
-		ws1 = skLearn_ridgeRegression(xArr, yArr, exp(i - 10))
-		wArr[i, :] = ws
-	return wArr
-
 #展示结果
 def showRidge(ridgeWeights):
 	fig = plt.figure()
@@ -100,9 +83,31 @@ def showRidge(ridgeWeights):
 
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
-	ridgeWeights = ridgeTest(xList, yList)
-	print ridgeWeights
-	showRidge(ridgeWeights)
+	xArr = np.array(xList)
+	yArr = np.transpose([yList])  # 加个[]是为了转换成二维
+	numTestPts = 30
+	# 数据标准化与中心化
+	xArr, yArr = regularize(xArr, yArr)
+	wArr = np.zeros((numTestPts, np.shape(xArr)[1]))
+	while (1):
+		print '请输入你选择的方式(1.sklearn;2.regression自己实现的岭回归)'
+		selectStyle = raw_input()
+		if selectStyle == '1':
+			for i in xrange(numTestPts):
+				# 根据sklearn调包实现的岭回归，如若运行这个，请把下面的ws改为ws1
+				ws = skLearn_ridgeRegression(xArr, yArr, exp(i - 10))
+				wArr[i, :] = ws
+			break
+		elif selectStyle == '2':
+			for i in xrange(numTestPts):
+				# 自己按理解实现
+				ws = ridgeRegression(xArr, yArr, exp(i - 10))
+				wArr[i, :] = ws
+			break
+		else:
+			print '错误输入,请重新输入'
+	print wArr
+	showRidge(wArr)
 
 if __name__ == '__main__':
 	main()
