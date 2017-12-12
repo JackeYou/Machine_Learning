@@ -21,6 +21,7 @@ import itertools
 import numpy as np
 from math import exp
 from sklearn import linear_model
+import matplotlib.pyplot as plt
 #加载数据
 def loadDataSet(filename):
 	xList = []
@@ -52,7 +53,7 @@ def corCoef(xVector, yVector):
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
 #coordinate descent坐标轴下降法
-def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.01):
+def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 	m, n = np.shape(xArr)
 	#print m, n
 	w = np.zeros((n, 1)) #初始化回归系数
@@ -83,8 +84,8 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.01):
 	return w
 
 #调sklearn包的coordinate descent坐标轴下降法
-def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.01):
-	reg = linear_model.Lasso(alpha = 0.2, fit_intercept = False, tol=threshold)
+def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
+	reg = linear_model.Lasso(alpha = lm, fit_intercept = False, tol=threshold)
 	reg.fit(xList, yList)
 	return reg.coef_
 
@@ -95,20 +96,31 @@ def lassoLeastAngleRegression(xArr, yArr):
 	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y - np.dot(x, w)))
 	rss = Rss(xArr, yArr, w)
 
+#调sklearn的包进行Least_Angle_Regression最小角回归法
+def sklearn_LassoLeastAngleRegression(xList, yList, lm = 0.2, threshold = 0.1):
+	pass
 
-def lassoText(xArr, yArr, nTest = 30):
+#lasso测试
+def lassoByMeText(xArr, yArr, nTest = 30):
 	_, n = np.shape(xArr)
 	ws = np.zeros((nTest, n))
 	ws1 = np.zeros((nTest, n))
 	for i in xrange(nTest):
 		#自己按照公式实现的
 		w = lassoCoordinateDescent(xArr, yArr, lm = exp(i - 10))
-		#根据sklearn包进行实现的
-		w1 = skLearn_coordinateDescent(xArr, yArr, lm=exp(i - 10))
 		ws[i, :] = w.T
-		ws1[i, :] = w1
 		print('lambda = e^({}), w = {}'.format(i - 10, w.T))
-		#print('lambda = e^({}), w = {}'.format(i - 10, w1))
+	return ws
+
+#调sklearn包进行测试
+def sklearnLassoText(xArr, yArr, nTest = 30)
+	_, n = np.shape(xArr)
+	ws = np.zeros((nTest, n))
+	for i in xrange(nTest):
+		# 根据sklearn包进行实现的
+		w = skLearn_coordinateDescent(xArr, yArr, lm=exp(i - 10))
+		ws[i, :] = w
+		print('lambda = e^({}), w = {}'.format(i - 10, w))
 	return ws
 
 #主函数
@@ -116,12 +128,21 @@ def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
 	yArr = np.transpose([yArr])
-	ws = lassoText(xArr, yArr)
-	#ws = lassoCoordinateDescent(xArr, yArr, 0.2)
-	print ws
-	#yArr_prime = np.dot(xArr, ws)
-	#corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
-	#print'Correlation coefficient:{}'.format(corcoef)
+	nTest = 30
+	ws = lassoText(xArr, yArr, nTest)
+	ws = sklearnLassoText(xArr, yArr, nTest)
+	'''
+	#对最后结果进行相关系数比较
+	yArr_prime = np.dot(xArr, ws)
+	corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
+	print'Correlation coefficient:{}'.format(corcoef)
+	'''
+	#绘制轨迹
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	lam = [i - 10 for i in xrange(nTest)]
+	ax.plot(lam, ws)
+	plt.show()
 
 if __name__ == '__main__':
 	main()
