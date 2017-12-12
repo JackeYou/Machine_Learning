@@ -73,8 +73,21 @@ def show(xList, yList, w):
 #主函数
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/ex0.txt")
-	ws = standRegress(xList, yList) #自己按理解实现
-	#ws = sklearn_standRegress(xList, yList) #sklearn的实现
+	_, n = np.shape(xList)
+	ws = np.zeros((n, 1))
+	while(1):
+		print '请输入你选择的方式(1.sklearn;2.regression自己实现的线性回归)'
+		selectStyle = raw_input()
+		if selectStyle == '1':
+			# sklearn的实现
+			ws = sklearn_standRegress(xList, yList)
+			break
+		elif selectStyle == '2':
+			# 自己按理解实现
+			ws = standRegress(xList, yList)
+			break
+		else:
+			print '错误输入,请重新输入'
 	print "最小二乘法得出的回归系数： \n", ws
 	show(xList, yList, ws)
 	yPredict = np.dot(xList, ws)
