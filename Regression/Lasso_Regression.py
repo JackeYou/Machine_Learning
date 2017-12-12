@@ -86,6 +86,7 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 #调sklearn包的coordinate descent坐标轴下降法
 def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
 	reg = linear_model.Lasso(alpha = lm, fit_intercept = False, tol=threshold)
+	#print yList.tolist()
 	reg.fit(xList, yList)
 	return reg.coef_
 
@@ -98,7 +99,9 @@ def lassoLeastAngleRegression(xArr, yArr):
 
 #调sklearn的包进行Least_Angle_Regression最小角回归法
 def sklearn_LassoLeastAngleRegression(xList, yList, lm = 0.2, threshold = 0.1):
-	pass
+	reg = linear_model.LassoLars(alpha = .1, fit_intercept = False)
+	reg.fit(xList, yList)
+	return reg.coef_
 
 #lasso测试
 def lassoByMeText(xArr, yArr, nTest = 30):
@@ -113,7 +116,7 @@ def lassoByMeText(xArr, yArr, nTest = 30):
 	return ws
 
 #调sklearn包进行测试
-def sklearnLassoText(xArr, yArr, nTest = 30)
+def sklearnLassoText(xArr, yArr, nTest = 30):
 	_, n = np.shape(xArr)
 	ws = np.zeros((nTest, n))
 	for i in xrange(nTest):
@@ -127,9 +130,9 @@ def sklearnLassoText(xArr, yArr, nTest = 30)
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
-	yArr = np.transpose([yArr])
+	#yArr = np.transpose([yArr])
 	nTest = 30
-	ws = lassoText(xArr, yArr, nTest)
+	#ws = lassoByMeText(xArr, yArr, nTest)
 	ws = sklearnLassoText(xArr, yArr, nTest)
 	'''
 	#对最后结果进行相关系数比较
