@@ -13,8 +13,6 @@
 	最终得出:		 |(p_k + λ*m) / z_k, p_k < - λm
 			wk = |      0          , - λm < p_k < λm
 				 |(p_k - λ*m) / z_k, p_k > λm
-	Least_Angle_Regression最小角回归法
-
 '''
 #加载的包
 import itertools
@@ -89,25 +87,11 @@ def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
 	#print yList.tolist()
 	reg.fit(xList, yList)
 	return reg.coef_
-
-#Least_Angle_Regression最小角回归法
-def lassoLeastAngleRegression(xArr, yArr):
-	m, n = np.shape(xArr)
-	w = np.zeros((n, 1)) #初始化系数
-	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y - np.dot(x, w)))
-	rss = Rss(xArr, yArr, w)
-
-#调sklearn的包进行Least_Angle_Regression最小角回归法
-def sklearn_LassoLeastAngleRegression(xList, yList, lm = 0.2, threshold = 0.1):
-	reg = linear_model.LassoLars(alpha = .1, fit_intercept = False)
-	reg.fit(xList, yList)
-	return reg.coef_
-
+'''
 #lasso测试
 def lassoByMeText(xArr, yArr, nTest = 30):
 	_, n = np.shape(xArr)
 	ws = np.zeros((nTest, n))
-	ws1 = np.zeros((nTest, n))
 	for i in xrange(nTest):
 		#自己按照公式实现的
 		w = lassoCoordinateDescent(xArr, yArr, lm = exp(i - 10))
@@ -125,15 +109,35 @@ def sklearnLassoText(xArr, yArr, nTest = 30):
 		ws[i, :] = w
 		print('lambda = e^({}), w = {}'.format(i - 10, w))
 	return ws
-
+'''
 #主函数
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
-	#yArr = np.transpose([yArr])
+	yArr = np.transpose([yArr])
 	nTest = 30
-	#ws = lassoByMeText(xArr, yArr, nTest)
-	ws = sklearnLassoText(xArr, yArr, nTest)
+	_, n = np.shape(xArr)
+	ws = np.zeros((nTest, n))
+	while (1):
+		print '请输入你选择的方式(1.sklearn;2.regression自己实现的岭回归)'
+		selectStyle = raw_input()
+		if selectStyle == '1':
+			for i in xrange(nTest):
+				# 根据sklearn包进行实现的
+				w = skLearn_coordinateDescent(xArr, yArr, lm=exp(i - 10))
+				ws[i, :] = w
+				print('lambda = e^({}), w = {}'.format(i - 10, w))
+			break
+		elif selectStyle == '2':
+			for i in xrange(nTest):
+				# 自己按照公式实现的
+				w = lassoCoordinateDescent(xArr, yArr, lm=exp(i - 10))
+				ws[i, :] = w.T
+				print('lambda = e^({}), w = {}'.format(i - 10, w.T))
+			break
+		else:
+			print '错误输入,请重新输入'
+	#print ws
 	'''
 	#对最后结果进行相关系数比较
 	yArr_prime = np.dot(xArr, ws)
