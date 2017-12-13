@@ -5,7 +5,6 @@
 
 '''
 #加载的包
-import itertools
 import numpy as np
 from math import exp
 from sklearn import linear_model
