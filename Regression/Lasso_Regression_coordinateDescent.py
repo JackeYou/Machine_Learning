@@ -82,7 +82,7 @@ def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
 	return w
 
 #调sklearn包的coordinate descent坐标轴下降法
-def skLearn_coordinateDescent(xList, yList, lm = 0.2, threshold = 0.1):
+def skLearn_coordinateDescent(xList, yList, lm = 0.2):
 	reg = linear_model.Lasso(alpha = lm, fit_intercept = False)
 	#print yList.tolist()
 	reg.fit(xList, yList)
