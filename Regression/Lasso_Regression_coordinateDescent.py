@@ -149,6 +149,8 @@ def main():
 	ax = fig.add_subplot(111)
 	lam = [i - 10 for i in xrange(nTest)]
 	ax.plot(lam, ws)
+	plt.xlabel('lambda')
+	plt.ylabel('ws')
 	plt.show()
 
 if __name__ == '__main__':
