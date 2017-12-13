@@ -14,8 +14,9 @@
 				设置wbest等于当前的w
 		将w设置为新的wbest
 '''
+#导入的包
 import numpy as np
-
+import matplotlib.pyplot as plt
 #加载数据
 def loadDataSet(filename):
 	xList = []
@@ -43,7 +44,7 @@ def regularize(xList, yList):
 	return xArr, yArr
 
 #前向逐步回归
-def forwardStepwiseRegression(xArr, yArr, eps=0.01, numIt=100):
+def forwardStepwiseRegression(xArr, yArr, eps=0.005, numIt=1000):
 	m, n = np.shape(xArr)
 	w = np.zeros([n, 1])
 	wTotal = np.zeros([numIt, n])
@@ -64,19 +65,19 @@ def forwardStepwiseRegression(xArr, yArr, eps=0.01, numIt=100):
 		print '误差 = {}'.format((RSS(xArr, yArr, np.transpose([wTotal[i]]))[0][0]))
 	return wTotal
 #图像展示
-'''
+
 def show(ws):
 	plt.plot(ws)
 	plt.show()
-'''
+
 #主函数
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList)  # 标准化
 	yArr = np.transpose([yArr])
 	ws = forwardStepwiseRegression(xArr, yArr)
-	print ws
-	#show(ws)
+	#print ws
+	show(ws)
 
 if __name__ == '__main__':
 	main()
