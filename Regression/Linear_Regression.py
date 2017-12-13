@@ -4,11 +4,12 @@
 	线性回归
 	公式：W = 1/(xTx) * xT * y
 '''
-
+#导入的包
 import numpy as np
 from numpy import linalg
 from numpy import corrcoef
 from sklearn import linear_model
+import matplotlib.pyplot as plt
 
 #加载数据
 def loadDataSet(filename):
@@ -57,7 +58,6 @@ def sklearn_standRegress(xList, yList):
 
 #展示结果
 def show(xList, yList, w):
-	import matplotlib.pyplot as plt
 	xArr = np.array(xList)
 	yArr = np.transpose([yList])
 	fig = plt.figure() #创建一幅图
