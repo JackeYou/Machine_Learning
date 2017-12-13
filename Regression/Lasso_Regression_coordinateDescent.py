@@ -102,7 +102,7 @@ def main():
 			break
 		else:
 			print '错误输入,请重新输入'
-	#print ws
+	print ws
 	'''
 	#对最后结果进行相关系数比较
 	yArr_prime = np.dot(xArr, ws)
