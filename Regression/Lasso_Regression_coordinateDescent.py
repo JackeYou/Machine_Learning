@@ -4,15 +4,7 @@
 '''
 	2017.11.30 by youjiaqi
 	coordinate descent坐标轴下降法：
-	整个公式是RSS加上正则项的式子对wk进行求导,在k个特征下进行循环求解wk向量.
-	F = (1/2*m)∑(Yi -∑x * wij)^2 + λ * ∑|wj|
-	f = のF/のwk = 1/m * ∑(Yi -∑xij * wj) * (-xik) + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
-	f = のF/のwk = 1/m * ∑(Yi -∑(j!=k)xij * wj)* (-xik) + 1//m * ∑xik^2*wk + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
-	另p_k为∑(Yi -∑(j!=k)xij * wj)* (-xik),而z_k为∑xik^2.
-	のF/のwk为1/m * z_k * wk - 1/m * p_k + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)。另式子等于0
-	最终得出:		 |(p_k + λ*m) / z_k, p_k < - λm
-			wk = |      0          , - λm < p_k < λm
-				 |(p_k - λ*m) / z_k, p_k > λm
+
 '''
 #加载的包
 import itertools
@@ -52,34 +44,7 @@ def corCoef(xVector, yVector):
 
 #coordinate descent坐标轴下降法
 def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
-	m, n = np.shape(xArr)
-	#print m, n
-	w = np.zeros((n, 1)) #初始化回归系数
-	Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y- np.dot(x, w)))
-	rss = Rss(xArr, yArr, w)
-	#print rss
-	niter = itertools.count(1)
-	for it in niter: #迭代次数
-		for k in xrange(n): #k：特征个数
-			z_k = np.dot(xArr[:, k: k + 1].T, xArr[:, k: k + 1])[0][0]
-			p_k = sum([xArr[i, k] * (yArr[i, 0] - sum([xArr[i, j] * w[j, 0] for j in xrange(n) if j != k])) for i in xrange(m)])
-			#print p_k
-			if p_k < -lm * m:
-				w_k = (p_k + lm * m) / z_k
-			elif p_k > lm * m:
-				w_k = (p_k - lm * m) / z_k
-			else:
-				w_k = 0.0
-			w[k] = w_k
-		rss_prime = Rss(xArr, yArr, w)
-		delta = abs(rss_prime - rss)[0][0]
-		rss = rss_prime
-		print 'delta = {}'.format(delta)
-		print w
-		if delta < threshold: #迭代多次满足RSS变化不超过threshold时,迭代停止
-			break
-	#print w
-	return w
+	pass
 
 #调sklearn包的coordinate descent坐标轴下降法
 def skLearn_coordinateDescent(xList, yList, lm = 0.2):
