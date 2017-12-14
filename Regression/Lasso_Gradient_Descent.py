@@ -10,7 +10,7 @@
 	f = のF/のwk = 1/m * ∑(Yi -∑(j!=k)xij * wj)* (-xik) + 1//m * ∑xik^2*wk + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)
 	另p_k为∑(Yi -∑(j!=k)xij * wj)* (-xik),而z_k为∑xik^2.
 	のF/のwk为1/m * z_k * wk - 1/m * p_k + -λ(wk < 0)|[-λ,λ](wk = 0)|λ(wk > 0)。另式子等于0
-	最终得出:		 |(p_k + λ*m) / z_k, p_k < - λm
+	最终得出:	 |(p_k + λ*m) / z_k, p_k < - λm
 			wk = |      0          , - λm < p_k < λm
 				 |(p_k - λ*m) / z_k, p_k > λm
 '''
