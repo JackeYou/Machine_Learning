@@ -7,10 +7,11 @@
 
 '''
 #加载的包
-import itertools
 import numpy as np
 from math import exp
 from sklearn import linear_model
+from sklearn.base import BaseEstimator, RegressorMixin
+from copy import deepcopy
 import matplotlib.pyplot as plt
 #加载数据
 def loadDataSet(filename):
@@ -43,8 +44,55 @@ def corCoef(xVector, yVector):
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
 #coordinate descent坐标轴下降法
-def lassoCoordinateDescent(xArr, yArr, lm = 0.2, threshold = 0.1):
-	pass
+class Lasso(BaseEstimator, RegressorMixin):
+	def __init__(self, alpha=1.0, max_iter=1000, fit_intercept=True):
+		self.alpha = alpha  # 正則化項の係数
+		self.max_iter = max_iter  # 繰り返しの回数
+		self.fit_intercept = fit_intercept  # 切片(i.e., \beta_0)を用いるか
+		self.coef_ = None  # 回帰係数(i.e., \beta)保存用変数
+		self.intercept_ = None  # 切片保存用変数
+
+	def _soft_thresholding_operator(self, x, lambda_):
+		if x > 0 and lambda_ < abs(x):
+			return x - lambda_
+		elif x < 0 and lambda_ < abs(x):
+			return x + lambda_
+		else:
+			return 0
+
+	def fit(self, X, y):
+		if self.fit_intercept:
+			X = np.column_stack((np.ones(len(X)), X))
+
+		beta = np.zeros(X.shape[1])
+		if self.fit_intercept:
+			beta[0] = np.sum(y - np.dot(X[:, 1:], beta[1:])) / (X.shape[0])
+
+		for iteration in range(self.max_iter):
+			start = 1 if self.fit_intercept else 0
+			for j in range(start, len(beta)):
+				tmp_beta = deepcopy(beta)
+				tmp_beta[j] = 0.0
+				r_j = y - np.dot(X, tmp_beta)
+				arg1 = np.dot(X[:, j], r_j)
+				arg2 = self.alpha * X.shape[0]
+				beta[j] = self._soft_thresholding_operator(arg1, arg2) / (X[:, j] ** 2).sum()
+				if self.fit_intercept:
+					beta[0] = np.sum(y - np.dot(X[:, 1:], beta[1:])) / (X.shape[0])
+
+		if self.fit_intercept:
+			self.intercept_ = beta[0]
+			self.coef_ = beta[1:]
+		else:
+			self.coef_ = beta
+
+		return self
+
+	def predict(self, X):
+		y = np.dot(X, self.coef_)
+		if self.fit_intercept:
+			y += self.intercept_ * np.ones(len(y))
+		return y
 
 #调sklearn包的coordinate descent坐标轴下降法
 def skLearn_coordinateDescent(xList, yList, lm = 0.2):
@@ -79,7 +127,7 @@ def sklearnLassoText(xArr, yArr, nTest = 30):
 def main():
 	xList, yList = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/Regression/data/abalone.txt")
 	xArr, yArr = regularize(xList, yList) #标准化
-	yArr = np.transpose([yArr])
+	#yArr = np.transpose([yArr])
 	nTest = 30
 	_, n = np.shape(xArr)
 	ws = np.zeros((nTest, n))
@@ -96,9 +144,9 @@ def main():
 		elif selectStyle == '2':
 			for i in xrange(nTest):
 				# 自己按照公式实现的
-				w = lassoCoordinateDescent(xArr, yArr, lm=exp(i - 10))
-				ws[i, :] = w.T
-				print('lambda = e^({}), w = {}'.format(i - 10, w.T))
+				model = Lasso(alpha=exp(i - 10), max_iter=1000).fit(xArr, yArr)
+				ws[i] = model.coef_
+				print('lambda = e^({}), w = {}'.format(i - 10, model.coef_))
 			break
 		else:
 			print '错误输入,请重新输入'
