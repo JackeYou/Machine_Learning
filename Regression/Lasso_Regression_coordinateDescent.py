@@ -45,7 +45,7 @@ def corrCoef(xVector, yVector):
 
 #coordinate descent坐标轴下降法
 class LassoCD(BaseEstimator, RegressorMixin):
-	def __init__(self, alpha=1.0, max_iter=1000, fit_intercept=True):
+	def __init__(self, alpha=1.0, max_iter=1000, fit_intercept=False):
 		self.alpha = alpha  #正则化系数
 		self.max_iter = max_iter
 		self.fit_intercept = fit_intercept
@@ -68,12 +68,13 @@ class LassoCD(BaseEstimator, RegressorMixin):
 		if self.fit_intercept:
 			beta[0] = np.sum(y - np.dot(X[:, 1:], beta[1:])) / (X.shape[0])
 
-		for iteration in range(self.max_iter):
+		for iteration in xrange(self.max_iter):
 			start = 1 if self.fit_intercept else 0
-			for j in range(start, len(beta)):
+			for j in xrange(start, len(beta)):
 				tmp_beta = deepcopy(beta)
 				tmp_beta[j] = 0.0
 				r_j = y - np.dot(X, tmp_beta)
+				print r_j
 				arg1 = np.dot(X[:, j], r_j)
 				arg2 = self.alpha * X.shape[0]
 				beta[j] = self._soft_thresholding_operator(arg1, arg2) / (X[:, j] ** 2).sum()
@@ -85,7 +86,6 @@ class LassoCD(BaseEstimator, RegressorMixin):
 			self.coef_ = beta[1:]
 		else:
 			self.coef_ = beta
-
 		return self
 
 	def predict(self, X):
