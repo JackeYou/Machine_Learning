@@ -39,18 +39,18 @@ def regularize(xList, yList):
 	return xArr, yArr
 
 #相关系数
-def corCoef(xVector, yVector):
+def corrCoef(xVector, yVector):
 	return (np.dot(xVector.T, yVector)[0][0] / np.shape(xVector)[0] - np.mean(xVector) * np.mean(yVector)) \
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
 #coordinate descent坐标轴下降法
-class Lasso(BaseEstimator, RegressorMixin):
+class LassoCD(BaseEstimator, RegressorMixin):
 	def __init__(self, alpha=1.0, max_iter=1000, fit_intercept=True):
-		self.alpha = alpha  # 正則化項の係数
-		self.max_iter = max_iter  # 繰り返しの回数
-		self.fit_intercept = fit_intercept  # 切片(i.e., \beta_0)を用いるか
-		self.coef_ = None  # 回帰係数(i.e., \beta)保存用変数
-		self.intercept_ = None  # 切片保存用変数
+		self.alpha = alpha  #正则化系数
+		self.max_iter = max_iter
+		self.fit_intercept = fit_intercept
+		self.coef_ = None
+		self.intercept_ = None
 
 	def _soft_thresholding_operator(self, x, lambda_):
 		if x > 0 and lambda_ < abs(x):
@@ -94,7 +94,7 @@ class Lasso(BaseEstimator, RegressorMixin):
 			y += self.intercept_ * np.ones(len(y))
 		return y
 
-#调sklearn包的coordinate descent坐标轴下降法
+#调skLearn包的coordinate descent坐标轴下降法
 def skLearn_coordinateDescent(xList, yList, lm = 0.2):
 	reg = linear_model.Lasso(alpha = lm, fit_intercept = False)
 	#print yList.tolist()
@@ -112,12 +112,12 @@ def lassoByMeText(xArr, yArr, nTest = 30):
 		print('lambda = e^({}), w = {}'.format(i - 10, w.T))
 	return ws
 
-#调sklearn包进行测试
-def sklearnLassoText(xArr, yArr, nTest = 30):
+#调skLearn包进行测试
+def skLearnLassoText(xArr, yArr, nTest = 30):
 	_, n = np.shape(xArr)
 	ws = np.zeros((nTest, n))
 	for i in xrange(nTest):
-		# 根据sklearn包进行实现的
+		# 根据skLearn包进行实现的
 		w = skLearn_coordinateDescent(xArr, yArr, lm=exp(i - 10))
 		ws[i, :] = w
 		print('lambda = e^({}), w = {}'.format(i - 10, w))
@@ -132,11 +132,11 @@ def main():
 	_, n = np.shape(xArr)
 	ws = np.zeros((nTest, n))
 	while (1):
-		print '请输入你选择的方式(1.sklearn;2.regression自己实现的岭回归)'
+		print '请输入你选择的方式(1.skLearn;2.regression自己实现的岭回归)'
 		selectStyle = raw_input()
 		if selectStyle == '1':
 			for i in xrange(nTest):
-				# 根据sklearn包进行实现的
+				# 根据skLearn包进行实现的
 				w = skLearn_coordinateDescent(xArr, yArr, lm=exp(i - 10))
 				ws[i, :] = w
 				print('lambda = e^({}), w = {}'.format(i - 10, w))
@@ -144,7 +144,7 @@ def main():
 		elif selectStyle == '2':
 			for i in xrange(nTest):
 				# 自己按照公式实现的
-				model = Lasso(alpha=exp(i - 10), max_iter=1000).fit(xArr, yArr)
+				model = LassoCD(alpha=exp(i - 10), max_iter=1000).fit(xArr, yArr)
 				ws[i] = model.coef_
 				print('lambda = e^({}), w = {}'.format(i - 10, model.coef_))
 			break
@@ -154,7 +154,7 @@ def main():
 	'''
 	#对最后结果进行相关系数比较
 	yArr_prime = np.dot(xArr, ws)
-	corcoef = corCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
+	corrcoef = corrCoef(yArr, yArr_prime) #可决系数可以作为综合度量回归模型对样本观测值拟合优度的度量指标.
 	print'Correlation coefficient:{}'.format(corcoef)
 	'''
 	#绘制轨迹
