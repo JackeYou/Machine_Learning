@@ -9,6 +9,7 @@ import numpy as np
 from math import exp
 from sklearn import linear_model
 import matplotlib.pyplot as plt
+from sklearn.base import BaseEstimator, RegressorMixin
 #加载数据
 def loadDataSet(filename):
 	xList = []
@@ -40,6 +41,30 @@ def corCoef(xVector, yVector):
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
 #Least_Angle_Regression最小角回归法
+class Lasso_LARS(BaseEstimator, RegressorMixin):
+	#初始化
+	def __init__(self, alpha = 1.0, max_iter = 1000, fit_intercept = True):
+		self.alpha = alpha
+		self.max_iter = max_iter
+		self.fit_intercept = fit_intercept
+		self.coef_ = None
+		self.intercept_ = None
+
+	#拟合
+	def fit(self, xArr, yArr):
+		if self.fit_intercept:
+			xArr = np.column_stack((np.ones(len(xArr)), xArr))
+		beta = np.zeros(np.shape(xArr)[1])
+
+		if self.fit_intercept:
+			self.intercept_ = beta[0]
+			self.coef_ = beta[1:]
+		else:
+			self.coef_ = beta
+		return self
+	def predict(self, xArr):
+		pass
+'''
 def lassoLeastAngleRegression(xArr, yArr, lm=0.2, numIt=350):
 	m, n = np.shape(xArr)
 	w = np.zeros((n, 1)) #初始化系数
@@ -56,7 +81,7 @@ def lassoLeastAngleRegression(xArr, yArr, lm=0.2, numIt=350):
 		print w[:, -1]
 	plt.plot(wTotal)
 	plt.show()
-
+'''
 #调skLearn的包进行Least_Angle_Regression最小角回归法
 def skLearn_LassoLeastAngleRegression(xList, yList, lm = 0.2, threshold = 0.1):
 	reg = linear_model.LassoLars(alpha = lm, fit_intercept = False)
@@ -71,7 +96,7 @@ def main():
 	nText = 30
 	_, n = np.shape(xArr)
 	wArr = np.zeros([nText, n])
-	while (1):
+	while(1):
 		print '请输入你选择的方式(1.skLearn;2.regression自己实现的岭回归)'
 		selectStyle = raw_input()
 		if selectStyle == '1':
@@ -83,8 +108,8 @@ def main():
 		elif selectStyle == '2':
 			for i in xrange(nText):
 				# 自己按理解实现
-				ws = lassoLeastAngleRegression(xArr, yArr, 0.004)
-				wArr[i, :] = ws
+				model = Lasso_LARS(alpha = exp(i - 10), max_iter = 1000).fit(xArr, yArr)
+				wArr[i, :] = model.coef_
 			break
 		else:
 			print '错误输入,请重新输入'
