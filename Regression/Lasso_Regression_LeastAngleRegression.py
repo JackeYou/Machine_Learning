@@ -64,24 +64,7 @@ class Lasso_LARS(BaseEstimator, RegressorMixin):
 		return self
 	def predict(self, xArr):
 		pass
-'''
-def lassoLeastAngleRegression(xArr, yArr, lm=0.2, numIt=350):
-	m, n = np.shape(xArr)
-	w = np.zeros((n, 1)) #初始化系数
-	wTotal = []
-	wMax = np.copy(w)
-	#Rss = lambda x, y, w: np.dot((y - np.dot(x, w)).T, (y - np.dot(x, w)))
-	for i in xrange(numIt):
-		lowestError = yArr - np.dot(xArr, w)
-		corr = lowestError.T.dot(xArr)[0]
-		IS = np.abs(corr).argmax()
-		corrStar = corr[IS]
-		w[IS] += lm * corrStar / abs(corrStar)
-		wTotal.append(w[:, -1].tolist())
-		print w[:, -1]
-	plt.plot(wTotal)
-	plt.show()
-'''
+
 #调skLearn的包进行Least_Angle_Regression最小角回归法
 def skLearn_LassoLeastAngleRegression(xList, yList, lm = 0.2, threshold = 0.1):
 	reg = linear_model.LassoLars(alpha = lm, fit_intercept = False)
