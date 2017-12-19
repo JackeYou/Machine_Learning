@@ -26,18 +26,21 @@ class KnnScratch(object):
 	def fit(self, x_train, y_train):
 		self.x_train = x_train
 		self.y_train = y_train
-		print x_train
 	#样本预测
 	def predict_once(self, x_test, k):
-		lst_distance = []
+		lst_distance = {}
 		lst_predict = []
 		for i in xrange(len(self.x_train)):
 			# euclidean distance欧几里得距离：
 			distance = np.linalg.norm(x_test - self.x_train[i, :])
-		lst_distance = sorted(lst_distance)
+			lst_distance[i] = distance
+		# 排序并生成键值对
+		lst_distance = sorted(lst_distance.iteritems(), key=lambda a:a[1], reverse=False)
 		for i in xrange(k):
-			idx = lst_distance[i][1]
-			lst_predict.append(self.y_train[idx])
+			index = lst_distance[i][0]
+			lst_predict.append(self.y_train[index])
+		#print Counter(lst_predict).most_common(1)
+		#collections的counter类是一个跟踪值出现的次数的容器
 		return Counter(lst_predict).most_common(1)[0][0]
 	#多样本预测
 	def predict(self, x_test, k):
@@ -49,9 +52,13 @@ class KnnScratch(object):
 #主函数
 def main():
 	xArr, yArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
+	print "请输入test测试样例和k值"
+	test = input()
+	k = input()
 	knn = KnnScratch()
 	knn.fit(xArr, yArr)
-	knn.predict_once(xArr, 10)
+	result = knn.predict(np.array(test), int(k))
+	print result
 
 if __name__ == '__main__':
 	main()
