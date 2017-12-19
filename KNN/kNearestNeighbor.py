@@ -56,6 +56,7 @@ class KnnScratch(object):
 	def fit(self, x_train, y_train):
 		self.x_train = x_train
 		self.y_train = y_train
+
 	#样本预测
 	def predict_once(self, x_test, k):
 		lst_distance = {}
@@ -91,8 +92,8 @@ def cross_validation_Test():
 		#scoring参数用来给模型打分的方式
 		scores = cross_val_score(knn, x_train, y_train, cv=10, scoring='accuracy')
 		lst_scores.append(np.mean(scores))
-	MSE = [1 - x for x in lst_scores]
-	optimal_k = k_lst[MSE.index(min(MSE))]
+	#准确率
+	optimal_k = k_lst[lst_scores.index(max(lst_scores))]
 	print "The optimal number of neighbors is %d" % optimal_k
 	plt.plot(k_lst, lst_scores)
 	plt.xlabel('Number of Neighbors K')
