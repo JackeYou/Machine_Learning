@@ -40,7 +40,7 @@ def corCoef(xVector, yVector):
 	return (np.dot(xVector.T, yVector)[0][0] / np.shape(xVector)[0] - np.mean(xVector) * np.mean(yVector)) \
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
-#Least_Angle_Regression最小角回归法
+#Least_Angle_Regression最小角回归法,暂时没想好怎么写
 class Lasso_LARS(BaseEstimator, RegressorMixin):
 	#初始化
 	def __init__(self, alpha = 1.0, max_iter = 1000, fit_intercept = True):
