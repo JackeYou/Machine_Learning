@@ -43,7 +43,7 @@ def corrCoef(xVector, yVector):
 	return (np.dot(xVector.T, yVector)[0][0] / np.shape(xVector)[0] - np.mean(xVector) * np.mean(yVector)) \
 		   / ((np.var(xVector) * np.var(yVector)) ** 0.5)
 
-#coordinate descent坐标轴下降法
+#coordinate descent坐标轴下降法 自己源码实现没想好怎么写
 class LassoCD(BaseEstimator, RegressorMixin):
 	def __init__(self, alpha = 1.0, max_iter = 1000, fit_intercept = True):
 		self.alpha = alpha  #正则化系数
