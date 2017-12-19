@@ -20,6 +20,14 @@ def loadDataSet(filename):
 	yArr = np.array(file['class'])
 	return xArr, yArr
 
+#标准化数据
+def regularize(xArr):
+	#数据标准化
+	xMean = np.mean(xArr, 0)
+	xVar = np.var(xArr, 0)
+	xArr = (xArr - xMean) / xVar
+	return xArr
+
 class KnnScratch(object):
 	#拟合
 	def fit(self, x_train, y_train):
@@ -51,6 +59,7 @@ class KnnScratch(object):
 #主函数
 def main():
 	xArr, yArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
+	xArr = regularize(xArr)
 	print "请输入test测试样例和k值"
 	test = input()
 	k = input()
