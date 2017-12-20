@@ -16,6 +16,7 @@ class KNode(object):
 		self.left = left #左子树
 		self.right = right #右子树
 
+#kd树的构建(递归法)
 class K_dimensional_Tree():
 	#初始化
 	def __init__(self, data):
