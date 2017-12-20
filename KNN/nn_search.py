@@ -14,7 +14,6 @@ from kd_tree import K_dimensional_Tree
 #最近邻搜索
 class nn_search(object):
 	def __init__(self, tree, x):
-		self.tree = tree #生成的kd树
 		self.x = x #目标点
 		self.k = np.shape([x])[1]
 		self.nearestPoint = None #保存最近的点
