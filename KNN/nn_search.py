@@ -12,7 +12,7 @@ import numpy as np
 from kd_tree import K_dimensional_Tree
 
 #最近邻搜索
-class knn_search(object):
+class nn_search(object):
 	def __init__(self, tree, x):
 		self.tree = tree #生成的kd树
 		self.x = x #目标点
@@ -59,7 +59,7 @@ def main():
 	kd = K_dimensional_Tree(data)
 	kdTree = kd.root
 	#进行kd树搜索
-	kSearch = knn_search(kdTree, x)
+	kSearch = nn_search(kdTree, x)
 	print kSearch.result
 
 if __name__ == '__main__':
