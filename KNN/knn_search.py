@@ -4,60 +4,89 @@
 	最近邻搜索：
 '''
 #加载的包
-import numpy as np
+from operator import itemgetter
 
+import numpy as np
+import pandas as pd
 from kd_tree import K_dimensional_Tree
+
+#利用pandas加载数据
+def loadDataSet(filename):
+	file = pd.read_table(filename, sep=',',header=None)
+	dataArr = np.array(file)
+	return dataArr
+
+#有界优先队列 BPQ
+class BPQ(object):
+	def __init__(self, k=5, hold_max=False):
+		self.data = []
+		self.k = k #k近邻的k取值
+		self.hold_max = hold_max
+
+	def append(self, point, distance, label):
+		self.data.append((point, distance, label))
+		self.data.sort(key=itemgetter(1), reverse=self.hold_max)
+		self.data = self.data[:self.k]
+
+	#K个最近邻的点
+	def get_data(self):
+		return [item[0] for item in self.data]
+
+	#统计k个最近邻的点的标签,并返回标签类做多的那个
+	def get_label(self):
+		labels = [item[2] for item in self.data]
+		uniques, counts = np.unique(labels, return_counts=True)
+		return uniques[np.argmax(counts)]
+
+	def get_threshold(self):
+		return np.inf if len(self.data) == 0 else self.data[-1][1]
+
+	def full(self):
+		return len(self.data) >= self.k
 
 #最近邻搜索
 class knn_search(object):
-	def __init__(self, tree, x):
-		self.tree = tree #生成的kd树
-		self.x = x #目标点
-		self.k = np.shape([x])[1]
-		self.nearestPoint = None #保存最近的点
-		self.nearestValue = 0 #保存最近点的值
-		self.result = self.travel(tree)
+	def __init__(self, data):
+		self.k = np.shape(data)[1] - 1
 
-	# 欧氏距离
+	#欧式距离
 	def get_distance(self, a, b):
 		return np.linalg.norm(np.array(a) - np.array(b))
 
-	#递归搜索
-	def travel(self, tree, depth=0):
+	#搜索
+	def search(self, tree, x, queue):
 		if tree != None:
-			#递归
-			axis = depth % self.k
-			if self.x[axis] < tree.dom_elt[axis]:
-				self.travel(tree.left, depth + 1)
+			curDist = self.get_distance(x, tree.dom_elt)
+			if curDist < queue.get_threshold():
+				queue.append(tree.dom_elt, curDist, tree.label)
+			axis = tree.depth % self.k
+			search_left = False
+			#print axis
+			if x[axis] < tree.dom_elt[axis]:
+				search_left = True
+				queue = self.search(tree.left, x, queue)
 			else:
-				self.travel(tree.right, depth + 1)
-			#回溯
-			distance = self.get_distance(self.x, tree.dom_elt) #目标点和节点的距离判断
-			if self.nearestPoint == None:
-				self.nearestPoint = tree.dom_elt
-				self.nearestValue = distance
-			elif self.nearestValue > distance:
-				self.nearestPoint = tree.dom_elt
-				self.nearestValue = distance
+				queue = self.search(tree.right, x, queue)
 
-			print tree.dom_elt, depth, self.nearestValue, tree.dom_elt[axis], self.x[axis], self.nearestPoint
-			if abs(self.x[axis] - tree.dom_elt[axis] <= self.nearestValue):
-				if self.x[axis] < tree.dom_elt[axis]:
-					self.travel(tree.right, depth + 1)
+			if not queue.full() or np.abs(tree.dom_elt[axis] - x[axis]) < queue.get_threshold():
+				if search_left:
+					queue = self.search(tree.right, x, queue)
 				else:
-					self.travel(tree.left, depth + 1)
-		return self.nearestPoint
+					queue = self.search(tree.left, x, queue)
+		return queue
 
 #主函数
 def main():
-	data = [[2, 3], [5, 4], [9, 6], [4, 7], [8, 1], [7, 2]]
 	x = [5, 3] #目标点
-	#生成kd树
-	kd = K_dimensional_Tree(data)
+	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/dataTest.txt")
+	# 生成kd树
+	kd = K_dimensional_Tree(dataArr)
 	kdTree = kd.root
-	#进行kd树搜索
-	kSearch = knn_search(kdTree, x)
-	print kSearch.result
+	k = input("请输入k值:")
+	queue = BPQ(k)
+	ks = knn_search(dataArr)
+	Queue = ks.search(kdTree, x, queue)
+	print Queue.get_label()
 
 if __name__ == '__main__':
 	main()
