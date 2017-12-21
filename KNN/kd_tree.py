@@ -5,89 +5,11 @@
 	即k维树，是一种不断利用数据某个维度划分空间的数据结构；
 
 '''
-'''
 #加载的包
 import numpy as np
 import pandas as pd
 
-#加载数据
-def loadDataSet(filename):
-	name = ["sepal_length", "sepal_width", "petal_length", "petal_width", "class"]
-	file = pd.read_table(filename, sep=',',header=None,names=name)
-	xArr = np.array(file.ix[:, 0:4])
-	yArr = np.array(file['class'])
-	#xList = xArr.tolist()
-	#yList = yArr.tolist()
-	return xArr, yArr
-
-#标准化数据
-def regularize(xArr):
-	#数据标准化
-	xMean = np.mean(xArr, 0)
-	xVar = np.var(xArr, 0)
-	xArr = (xArr - xMean) / xVar
-	return xArr
-
-#kd树类
-class KNode(object):
-	def __init__(self, dom_elt, label, depth, left, right):
-		self.dom_elt = dom_elt #样本点
-		self.label = label #样本点的特征
-		self.depth = depth #维度
-		self.left = left #左子树
-		self.right = right #右子树
-
-#kd树的构建(递归法)
-class K_dimensional_Tree():
-	#初始化
-	def __init__(self, data, label):
-		self.k = np.shape(data)[1]
-		self.root = self.createTree(0, data, label)
-	#构建kd树
-	def createTree(self, depth, data_set, label):
-		depth_next = depth % self.k
-		if np.shape(data_set) < 1:
-			return None
-		elif np.shape(data_set) == 1:
-			return KNode(data_set[0], label[0], depth_next, None, None)
-		else:
-			sortIndex = data_set[:, depth_next].argsort()
-			sortData = data_set[sortIndex]
-			sortLabel = label[sortIndex]
-			#depth_pos = len(data_set) // 2 #找到中位数的位置
-			depth_pos = np.shape(data_set)[0] // 2 #找到中位数的位置
-			print sortData[depth_pos]
-			median = sortData[depth_pos]# 中位数分割点
-			nodeLable = sortLabel[depth_pos] #中位数点的特征
-			return KNode(median, nodeLable, depth_next,
-						 self.createTree(depth_next+1, data_set[: depth_pos], sortLabel[: depth_pos]),
-						 self.createTree(depth_next+1, data_set[depth_pos + 1 :], sortLabel[depth_pos + 1 :]))
-
-#KDTree的遍历
-def preOrder(root):
-	print root.dom_elt, root.label
-	if root.left:
-		preOrder(root.left)
-	if root.right:
-		preOrder(root.right)
-
-#主函数
-def main():
-	#data = [[2,3], [5,4], [9,6], [4,7], [8,1], [7,2]]
-	xArr, yArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
-	xArr = regularize(xArr)
-	kd = K_dimensional_Tree(xArr, yArr)
-	preOrder(kd.root)
-
-if __name__ == '__main__':
-	main()
-	print 'Success'
-'''
-#加载的包
-import numpy as np
-import pandas as pd
-
-#加载数据
+#利用pandas加载数据
 def loadDataSet(filename):
 	file = pd.read_table(filename, sep=',',header=None)
 	dataArr = np.array(file)
@@ -116,21 +38,24 @@ class KNode(object):
 class K_dimensional_Tree():
 	#初始化
 	def __init__(self, data):
+		#因为数据还有标签,所以求数据维度要减去1
 		self.k = np.shape(data)[1] - 1
 		self.root = self.createTree(0, data)
+
 	#构建kd树
 	def createTree(self, depth, data_set):
 		if np.shape(data_set)[0] < 1:
 			return None
 		else:
-			# 不像公式i = j(mod k) + 1 是因为,x向量是从0开始的,而书上的是从1开始的；
-			axis = depth % self.k #维度
-			sortIndex = data_set[:, axis].argsort()
-			sortData = data_set[sortIndex][:, :-1]
-			sortLabel = data_set[sortIndex][:, -1]
+			# 公式i = j(mod k) + 1；
+			# 为了防止数据越界而将此行放入最前面；
+			axis = depth % self.k #axis代表x的维度
+			sortIndex = data_set[:, axis].argsort() #按照某一axis维度进行排序,而axis的取值取决于上述公式
+			sortData = data_set[sortIndex][:, :-1] #对应的x数据进行按axis维度排序
+			sortLabel = data_set[sortIndex][:, -1] #相应的标签也跟着变化
 			depth_pos = len(data_set) // 2 #找到中位数的位置
 			median = sortData[depth_pos] #中位数分割点
-			medianLabel = sortLabel[depth_pos]
+			medianLabel = sortLabel[depth_pos] #中位数分割点的标签
 			return KNode(median, medianLabel, depth,
 						 self.createTree(axis + 1, data_set[sortIndex][: depth_pos]),
 						 self.createTree(axis + 1, data_set[sortIndex][depth_pos + 1 :]))
@@ -146,6 +71,7 @@ def preOrder(root):
 #主函数
 def main():
 	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/dataTest.txt")
+	#传入的数据带有标签
 	kd = K_dimensional_Tree(dataArr)
 	preOrder(kd.root)
 
