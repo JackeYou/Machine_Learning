@@ -22,7 +22,7 @@ class nn_search(object):
 	def __init__(self, tree, x):
 		self.x = x #目标点
 		self.k = np.shape([x])[1]
-		self.nearestPoint = None #保存最近的点
+		self.nearestPoint = np.array([]) #保存最近的点
 		self.nearestPointLabel = None #保存最近点的标签
 		self.nearestValue = 0 #保存最近点的值
 		self.result = self.travel(tree)
@@ -42,7 +42,7 @@ class nn_search(object):
 				self.travel(tree.right, depth + 1)
 			#回溯
 			distance = self.get_distance(self.x, tree.dom_elt) #目标点和节点的距离判断
-			if self.nearestPoint == None:
+			if len(self.nearestPoint) == 0:
 				self.nearestPoint = tree.dom_elt
 				self.nearestPointLabel = tree.label
 				self.nearestValue = distance
@@ -52,7 +52,7 @@ class nn_search(object):
 				self.nearestValue = distance
 
 			print tree.dom_elt, depth, self.nearestValue, tree.dom_elt[axis], self.x[axis], self.nearestPoint, self.nearestPointLabel
-			if abs(self.x[axis] - tree.dom_elt[axis] <= self.nearestValue):
+			if abs(self.x[axis] - tree.dom_elt[axis]) <= self.nearestValue:
 				if self.x[axis] < tree.dom_elt[axis]:
 					self.travel(tree.right, depth + 1)
 				else:
