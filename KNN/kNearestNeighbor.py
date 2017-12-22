@@ -105,7 +105,7 @@ def cross_validation_Test():
 def main():
 	xArr, yArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
 	xArr = regularize(xArr)
-	print "请输入test测试样例:"
+	print "请输入test测试样例(必须是二维数组):"
 	test = input()
 	#交叉验证进行k值选择
 	k = cross_validation_Test()
