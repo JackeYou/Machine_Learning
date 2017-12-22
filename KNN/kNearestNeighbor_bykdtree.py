@@ -5,6 +5,9 @@
 import numpy as np
 import pandas as pd
 from operator import itemgetter
+from sklearn.model_selection import cross_val_score,train_test_split
+from sklearn.neighbors.classification import KNeighborsClassifier
+import matplotlib.pyplot as plt
 
 #利用pandas加载数据
 def loadDataSet(filename):
@@ -14,6 +17,16 @@ def loadDataSet(filename):
 	dataArr = regularize(dataArr)
 	return dataArr
 
+#进行交叉验证时所用的加载数据方法
+def loadDataSetCV(filename):
+	name = ["sepal_length", "sepal_width", "petal_length", "petal_width", "class"]
+	file = pd.read_table(filename, sep=',',header=None,names=name)
+	xArr = np.array(file.ix[:, 0:4])
+	yArr = np.array(file['class'])
+	#test_size：如果是浮点数，在0-1之间，表示样本占比；如果是整数的话就是样本的数量；
+	#random_state：是随机数的种子；
+	return train_test_split(xArr, yArr, test_size=0.33, random_state=40)
+
 #标准化数据
 def regularize(xArr):
 	#数据标准化
@@ -21,6 +34,26 @@ def regularize(xArr):
 	xVar = np.var(xArr[:, :-1], 0)
 	xArr[:, :-1] = (xArr[:, :-1] - xMean) / xVar
 	return xArr
+
+#交叉验证：通过交叉验证来完成k值的选择
+def cross_validation_Test():
+	x_train, x_test, y_train, y_test = loadDataSetCV("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
+	k_lst = list(range(1,30))
+	lst_scores = []
+	for k in k_lst:
+		knn = KNeighborsClassifier(n_neighbors=k)
+		#cv参数用来规定原始数据分多少份
+		#scoring参数用来给模型打分的方式
+		scores = cross_val_score(knn, x_train, y_train, cv=10, scoring='accuracy')
+		lst_scores.append(np.mean(scores))
+	#准确率
+	optimal_k = k_lst[lst_scores.index(max(lst_scores))]
+	print "The optimal number of neighbors is %d" % optimal_k
+	plt.plot(k_lst, lst_scores)
+	plt.xlabel('Number of Neighbors K')
+	plt.ylabel('correct classification rate')
+	plt.show()
+	return optimal_k
 
 #kd树 树节点类
 class KNode(object):
@@ -123,11 +156,14 @@ def main():
 	# 生成kd树
 	kd = K_dimensional_Tree(dataArr)
 	kdTree = kd.root
-	k = input("请输入k值:")
+	#对生成的kd树进行相应的搜索
 	test = input("请输入测试样例：需输入二维数组")
+	k = cross_validation_Test() #通过交叉验证进行k值的选择
+	#按照目标样本的个数进行搜索其k个最近的样本点,并输出其目标样本的类别(k个样本类别的最多类别为其真实类别)
 	for i in xrange(np.shape(test)[0]):
-		x = test[i]
+		x = test[i] #单个目标样本点
 		queue = BPQ(k)
+		#根据目标点来进行搜索其最近的k个样本点
 		ks = knn_search(dataArr)
 		Queue = ks.search(kdTree, x, queue)
 		print Queue.get_label()
