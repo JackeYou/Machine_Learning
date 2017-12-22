@@ -14,7 +14,16 @@ from kd_tree import K_dimensional_Tree
 def loadDataSet(filename):
 	file = pd.read_table(filename, sep=',',header=None)
 	dataArr = np.array(file)
+	dataArr = regularize(dataArr)
 	return dataArr
+
+#标准化数据
+def regularize(xArr):
+	#数据标准化
+	xMean = np.mean(xArr[:, :-1], 0)
+	xVar = np.var(xArr[:, :-1], 0)
+	xArr[:, :-1] = (xArr[:, :-1] - xMean) / xVar
+	return xArr
 
 #有界优先队列 BPQ
 class BPQ(object):
@@ -44,7 +53,7 @@ class BPQ(object):
 	def full(self):
 		return len(self.data) >= self.k
 
-#最近邻搜索
+#k近邻搜索
 class knn_search(object):
 	def __init__(self, data):
 		self.k = np.shape(data)[1] - 1
@@ -77,11 +86,11 @@ class knn_search(object):
 
 #主函数
 def main():
-	x = [5, 3] #目标点
-	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/dataTest.txt")
+	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
 	# 生成kd树
 	kd = K_dimensional_Tree(dataArr)
 	kdTree = kd.root
+	x = input("请输入目标点")
 	k = input("请输入k值:")
 	queue = BPQ(k)
 	ks = knn_search(dataArr)
