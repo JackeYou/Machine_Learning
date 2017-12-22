@@ -99,14 +99,16 @@ def cross_validation_Test():
 	plt.xlabel('Number of Neighbors K')
 	plt.ylabel('correct classification rate')
 	plt.show()
+	return optimal_k
 
 #主函数
 def main():
 	xArr, yArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
 	xArr = regularize(xArr)
-	print "请输入test测试样例和k值"
+	print "请输入test测试样例:"
 	test = input()
-	k = input()
+	#交叉验证进行k值选择
+	k = cross_validation_Test()
 	knn = KnnScratch()
 	knn.fit(xArr, yArr)
 	result = knn.predict(np.array(test), int(k))
@@ -114,6 +116,4 @@ def main():
 
 if __name__ == '__main__':
 	main()
-	# 交叉验证进行k值选择
-	cross_validation_Test()
 	print "Success"
