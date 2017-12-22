@@ -70,7 +70,7 @@ class knn_search(object):
 				queue.append(tree.dom_elt, curDist, tree.label)
 			axis = tree.depth % self.k
 			search_left = False
-			#print axis
+			print axis
 			if x[axis] < tree.dom_elt[axis]:
 				search_left = True
 				queue = self.search(tree.left, x, queue)
@@ -86,7 +86,7 @@ class knn_search(object):
 
 #主函数
 def main():
-	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
+	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/dataTest.txt")
 	# 生成kd树
 	kd = K_dimensional_Tree(dataArr)
 	kdTree = kd.root
