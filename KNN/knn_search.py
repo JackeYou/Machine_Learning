@@ -68,9 +68,10 @@ class knn_search(object):
 			curDist = self.get_distance(x, tree.dom_elt)
 			if curDist < queue.get_threshold():
 				queue.append(tree.dom_elt, curDist, tree.label)
+			#print queue.data
 			axis = tree.depth % self.k
 			search_left = False
-			print axis
+			#print axis
 			if x[axis] < tree.dom_elt[axis]:
 				search_left = True
 				queue = self.search(tree.left, x, queue)
@@ -86,10 +87,11 @@ class knn_search(object):
 
 #主函数
 def main():
-	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/dataTest.txt")
+	dataArr = loadDataSet("/home/liud/PycharmProjects/Machine_Learning/KNN/data.txt")
 	# 生成kd树
 	kd = K_dimensional_Tree(dataArr)
 	kdTree = kd.root
+	#目标点为单个样本点,若多个样本点输入，则需要更改代码为for循环
 	x = input("请输入目标点")
 	k = input("请输入k值:")
 	queue = BPQ(k)
